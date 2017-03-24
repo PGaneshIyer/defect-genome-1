@@ -28,3 +28,15 @@ class WraprunFns:
                       if os.path.isdir(x[0])]
         subDirsInRange = [x for x in allSubDirs if x not in removeSubDirs]
         return subDirsInRange
+
+    def remove_items_with_strs(self, dataList, strNeglectList):
+        outputList = []
+        for val in dataList:
+            includeFlag = True
+            for strNeglect in strNeglectList:
+                if strNeglect in val:
+                    includeFlag = False
+                    break
+            if (includeFlag is True):
+                outputList.append(val)
+        return outputList

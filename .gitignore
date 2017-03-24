@@ -1,0 +1,20 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!*.tex
+!*.bib
+!*.org
+!*.mm
+!*.py
+!*.sh
+!*.cc
+!*.cpp
+!*.h
+!*.f90
+!*.md
+# etc...
+
+# ...even if they are in subdirectories
+!*/

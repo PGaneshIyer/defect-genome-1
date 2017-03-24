@@ -50,7 +50,7 @@ class AnalyzeStructure:
                         find_atomList.append([atom, index, distance])
                 else:
                     find_atomList.append([atom, index, distance])
-        find_atomList.sort(key=itemgetter(2), reverse=True)
+        find_atomList.sort(key=itemgetter(1), reverse=True)
         return find_atomList[0:noAtoms]
 
     def find_closest_atoms(self, crystalStruc, ref_atomType, ref_atomIndex,
@@ -59,7 +59,7 @@ class AnalyzeStructure:
         ref_atom = crystalStruc[ref_atomIndex]
         find_atomList = []
         for index, atom in enumerate(crystalStruc):
-            if atom.species_string in find_atomType:
+            if atom.species_string == find_atomType:
                 distance = crystalStruc.get_distance(ref_atomIndex, index)
                 if maxDistance:
                     if (distance < maxDistance):
@@ -138,7 +138,7 @@ class AnalyzeStructure:
     def return_index_in_subspace(self, crystalStruc, atomTypes, spaceVal='frac',
                                  xRange=None, yRange=None, zRange=None, noIndices=None,
                                  accuracy = 1.0E-02):
-        """
+        ## COMMENT BEGINS
         :param crystalStruc: (pymatgen structure object) contains 
          the structure information
         :param atomTypes: [list] a list of strings of atom 
@@ -147,7 +147,7 @@ class AnalyzeStructure:
         Issues & Comments:
             1. In case of noIndices, break the loop, efficiently
             2. REQUIRES more bug testing.
-        """
+        ## COMMENT ENDS
         tmpIndices = self.return_index_of_atomtype(crystalStruc, atomTypes, noIndices)
         atomIndices = {}
         for key,val in tmpIndices.iteritems():
