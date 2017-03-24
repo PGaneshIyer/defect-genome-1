@@ -1,8 +1,9 @@
 import os, sys
+import getopt
 
 
 class WraprunFns:
-    
+
     def walklevel(self, some_dir, level=1):
         """
         ADAPTED FROM: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
@@ -40,3 +41,26 @@ class WraprunFns:
             if (includeFlag is True):
                 outputList.append(val)
         return outputList
+
+    def usage(self):
+        # TODO: Implement an actual usage function
+        print "Please look at Source Code For Implementation"
+
+    def argParse(self, argv):
+        # Adapted from http://www.diveintopython.net/scripts_and_streams/command_line_arguments.html
+        argDir = {"input": 'wraprun.json'}
+        try:
+            opts, args = getopt.getopt(argv, "hd:i:",
+                                       ["help", "dir=", "inFile="])
+        except getopt.GetoptError:
+            self.usage()
+            sys.exit(2)
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                self.usage()
+                sys.exit()
+            elif opt in ("-d", "--dir"):
+                argDir["workdir"] = arg
+            elif opt in ("-i", "--input"):
+                argDir["input"] = arg
+        return argDir
