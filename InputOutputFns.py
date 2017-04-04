@@ -1,28 +1,36 @@
+import os, sys
+import re
+import csv
+import tarfile
+import numpy as np
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Poscar
-import csv
 
 
 class InputOutput:
     """
     TODO:replace default python file io with monty.io
     """
-    
-    def poscar_cart_to_direct(self, inputFilePath, outputFilePath, vasp4Compatible=False):
+
+    def poscar_cart_to_direct(self, inputFilePath, outputFilePath,
+                              vasp4Compatible=False):
         noDecimals = 6
         direct = True
         crystalStruc = Structure.from_file(inputFilePath)
         poscarFile = Poscar(crystalStruc)
-        poscarString = poscarFile.get_string(direct, vasp4Compatible, noDecimals)
+        poscarString = poscarFile.get_string(direct, vasp4Compatible,
+                                             noDecimals)
         with open(outputFilePath, "w") as f:
             f.write(poscarString)
 
-    def poscar_direct_to_cart(self, inputFilePath, outputFilePath, vasp4Compatible=False):
+    def poscar_direct_to_cart(self, inputFilePath, outputFilePath,
+                              vasp4Compatible=False):
         noDecimals = 6
-        direct=False
+        direct = False
         crystalStruc = Structure.from_file(inputFilePath)
         poscarFile = Poscar(crystalStruc)
-        poscarString = poscarFile.get_string(direct, vasp4Compatible, noDecimals)
+        poscarString = poscarFile.get_string(direct, vasp4Compatible,
+                                             noDecimals)
         with open(outputFilePath, "w") as f:
             f.write(poscarString)
 
@@ -47,7 +55,7 @@ class InputOutput:
         count = 0
         with open(filePath, 'r') as f:
             if reverse:
-                 for line in reversed(f.readlines()):
+                for line in reversed(f.readlines()):
                     if str1 in line:
                         if (noOccurence is not None):
                             if (count < noOccurence):
@@ -71,11 +79,12 @@ class InputOutput:
                                 break
                         else:
                             line_val = re.split(regexSplit, line)
-                            lineList.append(line_val)                  
-        return lineList 
+                            lineList.append(line_val)
+        return lineList
 
     @staticmethod
-    def get_occurence_inlist_after_str(list1, str1, noOccurence=1, dataType=None):
+    def get_occurence_inlist_after_str(list1, str1, noOccurence=1,
+                                       dataType=None):
         occurenceList = []
         listValWithStr = [x for x in list1 if str1 in x]
         indexValWithStr = list1.index(listValWithStr[0])
@@ -92,7 +101,7 @@ class InputOutput:
                 if (isinstance(val, dataType) and count < noOccurence):
                     occurenceList.append(val)
                     count += 1
-                elif ( isinstance(val, dataType) and count >= noOccurence):
+                elif (isinstance(val, dataType) and count >= noOccurence):
                     break
         return occurenceList
 
@@ -127,7 +136,7 @@ class InputOutput:
                             continue
                 outputList.append(row)
         else:
-            with open(filePath, "r") as f:            
+            with open(filePath, "r") as f:
                 reader = csv.reader(f, delimiter=delimiterVal)
                 if skipHeader:
                     next(reader, None)
@@ -188,11 +197,11 @@ class InputOutput:
                                 continue
                     outputList.append(valList)
         return outputList
-            
+
     def replace_line_with_string(key_to_replace, new_value, filePath,
-                                backup='.bak'):
-       # 'import fileinput' is required
-       # for line in fileinput.input(filePath, inplace=True, backup=backup):
+                                 backup='.bak'):
+        # 'import fileinput' is required
+        # for line in fileinput.input(filePath, inplace=True, backup=backup):
         keyPresent = False
         f = fileinput.FileInput(filePath, inplace=True, backup='.bak')
         for line in f:
@@ -206,3 +215,10 @@ class InputOutput:
             with open(filePath, "a") as f:
                 f.write(new_value)
 
+    def make_tarfile(dirPath, inFileList, tarFileName, option=None):
+        with tarfile.open(os.path.join(dirPath, tarFileName),
+                          "w:gz") as tar:
+            for inFile in inFileList:
+                tar.add(inFile)
+
+    def get_filenames(dirPath,
