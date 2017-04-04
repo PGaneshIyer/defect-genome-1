@@ -1,10 +1,16 @@
+import os, sys
+import re
+import shutil
 from enum import Enum
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Poscar
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.electronic_structure.core import Spin, OrbitalType
-import re
+
+from InputOutputFns import InputOutput
+
 
 class VaspIO:
     def return_orbital_spin_enum(self, str1, valType='orbital'):
@@ -30,8 +36,8 @@ class VaspIO:
         else:
             raise ValueError('valType is neither OrbitalType nor Spin')
         return dataType
-    
-    def get_force_vasp(filePath, string='g(F)'):   
+
+    def get_force_vasp(filePath, string='g(F)'):
         string2 = 'trialstep'
         forceVal = None
         stepVal = None
@@ -57,26 +63,26 @@ class VaspIO:
                                 except:
                                     continue
                     break
-        print line, forceVal, stepVal        
-        #print forceList, forceVal #TEST
-        #print stepList, stepVal   #TEST
+        print line, forceVal, stepVal
+        # print forceList, forceVal #TEST
+        # print stepList, stepVal   #TEST
         return forceVal, stepVal, line
-                
+
     def get_potim_vasp(filePath, lineStr=None, string='POTIM'):
         with open(filePath, 'r') as f:
             for line in f:
                 if string in line:
                     val = float(line.split()[2])
                     break
-        #if string in lineStr:
-        #    val = 0.5
+        # if string in lineStr:
+        #     val = 0.5
         return val
 
     def get_partial_dos(self, filePath, atomType, orbitalType=None,
                         spinType=None, normalized=True, energyShift=True):
         """
         Returns energy and partial Density of States corresponding to an atom, orbital, spin combination
-        
+
         Args:
         :param filePath (str): path to vasprun.xml file
         :param atomType (str): Atom Symbol (only one atom at at time)
@@ -105,7 +111,8 @@ class VaspIO:
             if isinstance(orbitalType, OrbitalType):
                 pass
             elif isinstance(orbitalType, str):
-                orbitalType = self.return_orbital_spin_enum(orbitalType, 'orbital')
+                orbitalType = self.return_orbital_spin_enum(orbitalType,
+                                                            'orbital')
             else:
                 raise ValueError('orbitalType is not a valid')
             atomDos = vaspCompleteDos.get_element_spd_dos(atomType)[orbitalType]
@@ -122,7 +129,7 @@ class VaspIO:
             pDos = atomDos.get_densities(spin=spinType)
         else:
             pDos = atomDos.get_densities()
-    
+
         if normalized:
             noAtoms = len([x for x in vaspObj.final_structure
                            if x.species_string in atomType])
@@ -130,7 +137,8 @@ class VaspIO:
             pDos = pDos/noAtoms
         return pDos, energies
 
-    def poscar_cart_to_direct(self, inputFilePath, outputFilePath, vasp4Compatible=False):
+    def poscar_cart_to_direct(self, inputFilePath, outputFilePath,
+                              vasp4Compatible=False):
         """
         TODO: replace default python file io with monty.io
         """
@@ -138,18 +146,41 @@ class VaspIO:
         direct = True
         crystalStruc = Structure.from_file(inputFilePath)
         poscarFile = Poscar(crystalStruc)
-        poscarString = poscarFile.get_string(direct, vasp4Compatible, noDecimals)
+        poscarString = poscarFile.get_string(direct, vasp4Compatible,
+                                             noDecimals)
         with open(outputFilePath, "w") as f:
             f.write(poscarString)
 
-    def poscar_direct_to_cart(self, inputFilePath, outputFilePath, vasp4Compatible=False):
+    def poscar_direct_to_cart(self, inputFilePath, outputFilePath,
+                              vasp4Compatible=False):
         """
         TODO: replace default python file io with monty.io
         """
         noDecimals = 6
-        direct=False
+        direct = False
         crystalStruc = Structure.from_file(inputFilePath)
         poscarFile = Poscar(crystalStruc)
-        poscarString = poscarFile.get_string(direct, vasp4Compatible, noDecimals)
+        poscarString = poscarFile.get_string(direct, vasp4Compatible,
+                                             noDecimals)
         with open(outputFilePath, "w") as f:
             f.write(poscarString)
+
+    def vasp_backup_for_restart(self, dirPath):
+        if os.path.isfile(os.path.join(dirPath,
+                                       'OUTCAR')):
+            tarFileList = [x for x in os.listdir(dirPath)
+                           if x.endswith(".tgz")]
+            restartTmpVal = [re.findall(r'\d+', x)[-1]
+                             for x in tarFileList]
+            restartTmpVal.sort(key=float)
+            if len(restartTmpVal > 0):
+                restartVal = int(restartTmpVal[-1])+1
+            else:
+                restartVal = 0
+            tarFileName = 'vaspRunNo_'+str(restartVal)+'.tgz'
+            inFileList = ['INCAR', 'POSCAR', 'KPOINTS', 'CONTCAR',
+                          'XDATCAR', 'CHGCAR', 'CHG', 'OUTCAR',
+                          'DOSCAR', 'PROCAR', 'OSZICAR']
+            InputOutput.make_tarfile(dirPath, inFileList, tarFileName)
+            shutil.copy2(os.path.join(dirPath, 'CONTCAR'),
+                         os.path.join(dirPath, 'POSCAR'))

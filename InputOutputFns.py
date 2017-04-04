@@ -198,22 +198,23 @@ class InputOutput:
                     outputList.append(valList)
         return outputList
 
-    def replace_line_with_string(key_to_replace, new_value, filePath,
-                                 backup='.bak'):
-        # 'import fileinput' is required
-        # for line in fileinput.input(filePath, inplace=True, backup=backup):
-        keyPresent = False
-        f = fileinput.FileInput(filePath, inplace=True, backup='.bak')
-        for line in f:
-            if line.find(key_to_replace) >= 0:
-                print new_value
-                keyPresent = True
-            else:
-                print line[:-1]
-                f.close()
-        if (keyPresent is False):
-            with open(filePath, "a") as f:
-                f.write(new_value)
+    # HAS BUGS
+    # def replace_line_with_string(key_to_replace, new_value, filePath,
+    #                              backup='.bak'):
+    #     # 'import fileinput' is required
+    #     # for line in fileinput.input(filePath, inplace=True, backup=backup):
+    #     keyPresent = False
+    #     f = fileinput.FileInput(filePath, inplace=True, backup='.bak')
+    #     for line in f:
+    #         if line.find(key_to_replace) >= 0:
+    #             print new_value
+    #             keyPresent = True
+    #         else:
+    #             print line[:-1]
+    #             f.close()
+    #     if (keyPresent is False):
+    #         with open(filePath, "a") as f:
+    #             f.write(new_value)
 
     def make_tarfile(dirPath, inFileList, tarFileName, option=None):
         with tarfile.open(os.path.join(dirPath, tarFileName),
@@ -221,4 +222,3 @@ class InputOutput:
             for inFile in inFileList:
                 tar.add(inFile)
 
-    def get_filenames(dirPath,
