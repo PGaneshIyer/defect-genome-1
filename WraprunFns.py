@@ -1,9 +1,11 @@
 import os, sys
+import re
+import shutil
+import tarfile
 import getopt
-
+import warnings
 
 class WraprunFns:
-
     def walklevel(self, some_dir, level=1):
         """
         ADAPTED FROM: https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
@@ -32,14 +34,17 @@ class WraprunFns:
 
     def remove_items_with_strs(self, dataList, strNeglectList):
         outputList = []
-        for val in dataList:
-            includeFlag = True
-            for strNeglect in strNeglectList:
-                if strNeglect in val:
-                    includeFlag = False
-                    break
-            if (includeFlag is True):
-                outputList.append(val)
+        if (strNeglectList is not None):
+            for val in dataList:
+                includeFlag = True
+                for strNeglect in strNeglectList:
+                    if strNeglect in val:
+                        includeFlag = False
+                        break
+                if (includeFlag is True):
+                    outputList.append(val)
+        else:
+            outputList = dataList
         return outputList
 
     def usage(self):
@@ -64,3 +69,35 @@ class WraprunFns:
             elif opt in ("-i", "--input"):
                 argDir["input"] = arg
         return argDir
+
+    def make_tarfile(self, dirPath, inFileList,
+                     tarFileName, option=None):
+        with tarfile.open(os.path.join(dirPath, tarFileName),
+                          "w:gz") as tar:
+            for inFile in inFileList:
+                try:
+                    tar.add(os.path.join(dirPath, inFile))
+                except OSError:
+                    warnings.warn("Output File not available")
+                    print("FileName: ", inFile)
+
+    def vasp_backup_for_restart(self, dirPath):
+        if os.path.isfile(os.path.join(dirPath,
+                                       'OUTCAR')):
+            tarFileList = [x for x in os.listdir(dirPath)
+                           if x.endswith(".tgz")]
+            print tarFileList
+            if len(tarFileList) > 0:
+                restartTmpVal = [re.findall(r'\d+', x)[-1]
+                                 for x in tarFileList]
+                restartTmpVal.sort(key=float)
+                restartVal = int(restartTmpVal[-1])+1
+            else:
+                restartVal = 0
+            tarFileName = 'vaspRunNo_'+str(restartVal)+'.tgz'
+            inFileList = ['INCAR', 'POSCAR', 'KPOINTS', 'CONTCAR',
+                          'XDATCAR', 'CHGCAR', 'CHG', 'OUTCAR',
+                          'DOSCAR', 'PROCAR', 'OSZICAR']
+            self.make_tarfile(dirPath, inFileList, tarFileName)
+            shutil.copy2(os.path.join(dirPath, 'CONTCAR'),
+                         os.path.join(dirPath, 'POSCAR'))

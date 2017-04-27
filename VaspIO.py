@@ -165,22 +165,3 @@ class VaspIO:
         with open(outputFilePath, "w") as f:
             f.write(poscarString)
 
-    def vasp_backup_for_restart(self, dirPath):
-        if os.path.isfile(os.path.join(dirPath,
-                                       'OUTCAR')):
-            tarFileList = [x for x in os.listdir(dirPath)
-                           if x.endswith(".tgz")]
-            restartTmpVal = [re.findall(r'\d+', x)[-1]
-                             for x in tarFileList]
-            restartTmpVal.sort(key=float)
-            if len(restartTmpVal > 0):
-                restartVal = int(restartTmpVal[-1])+1
-            else:
-                restartVal = 0
-            tarFileName = 'vaspRunNo_'+str(restartVal)+'.tgz'
-            inFileList = ['INCAR', 'POSCAR', 'KPOINTS', 'CONTCAR',
-                          'XDATCAR', 'CHGCAR', 'CHG', 'OUTCAR',
-                          'DOSCAR', 'PROCAR', 'OSZICAR']
-            InputOutput.make_tarfile(dirPath, inFileList, tarFileName)
-            shutil.copy2(os.path.join(dirPath, 'CONTCAR'),
-                         os.path.join(dirPath, 'POSCAR'))

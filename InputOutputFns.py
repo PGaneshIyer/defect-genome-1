@@ -216,9 +216,5 @@ class InputOutput:
     #         with open(filePath, "a") as f:
     #             f.write(new_value)
 
-    def make_tarfile(dirPath, inFileList, tarFileName, option=None):
-        with tarfile.open(os.path.join(dirPath, tarFileName),
-                          "w:gz") as tar:
-            for inFile in inFileList:
-                tar.add(inFile)
+
 
