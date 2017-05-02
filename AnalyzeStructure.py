@@ -80,13 +80,14 @@ class AnalyzeStructure:
         find_atomList.sort(key=itemgetter(2))
         return find_atomList[0:noAtoms]
 
-    def return_index_of_atomtype(self, crystalStruc, atomTypes, noIndices=None):
+    def return_index_of_atomtype(self, crystalStruc, atomTypes,
+                                 noIndices=None):
         """
         :param crystalStruc: (pymatgen structure object) contains 
          the structure information
         :param atomTypes: [list] a list of strings of atom 
          Types of interest
-        :return: dictionary containing atom indices of interest.  
+        :return: dictionary containing atom indices of interest.
         Issues & Comments:
             1. In case of noIndices, break the loop, efficiently
         """
