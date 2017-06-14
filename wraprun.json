@@ -1,0 +1,18 @@
+{
+    "_comment": "Use ProcsPerTask and ProcsPerNode for Vasp CPU, NodesPerTask and TasksPerNode for Vasp GPU",
+    "MinDirDepth" : 2,
+    "MaxDirDepth" : 2,
+    "ProcType" : "GPU",
+    "ProcsPerTaskList" : null,
+    "ProcsPerTask" : 384,
+    "ProcsPerNode" : 16,
+    "Executable" : "/sw/xk6/vasp5/5.4/intel_15.0.2/bin/vasp5",
+    "VaspBackup" : 0,
+    "StringNeglectList" : ["input", "pureStruc", "run0", "run1", "NoStrain"],
+    "DirList" : null,
+    "NodesPerTaskList" : null
+    "NodesPerTask" : 8,
+    "TasksPerNode" : 1,
+    "ThreadsPerTask" : 1
+}
+    
